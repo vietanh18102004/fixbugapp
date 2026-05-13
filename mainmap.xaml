@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+             x:Class="EcoLand.Views.Pages.MainMap"
+             xmlns:views="clr-namespace:EcoLand.Views"
+             xmlns:behaviors="clr-namespace:EcoLand.Behaviors"
+             xmlns:models="clr-namespace:EcoLand.Models"
+             Title="MainMap"
+             Shell.NavBarIsVisible="False"
+             x:Name="EsMaps">
+    
+    <Grid>
+
+        <maps:Map x:Name="MainMapControl"
+                  MapType="Street"
+                  IsShowingUser="True"
+                  PropertyChanged="Map_PropertyChanged" />
+
+        <Grid VerticalOptions="Start"
+              ZIndex="1000"
+              Margin="15"
+              ColumnDefinitions="*,auto"
+              ColumnSpacing="10">
+            <Border Padding="20,0"
+                    StrokeThickness="0"
+                    HeightRequest="45"
+                    Background="White"
+                    BackgroundColor="White">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="13" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="8">
+                    <Label FontFamily="MaterialDesign"
+                           FontSize="22"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           Text="{x:Static views:MaterialDesignIcons.Search}"
+                           TextColor="{DynamicResource Black}"
+                           VerticalOptions="Center" />
+                    <Label Grid.Column="1"
+                           FontSize="14"
+                           Text="Nhà đất bán Phường Thanh Xuân"
+                           TextColor="{DynamicResource Black}"
+                           VerticalOptions="Center" />
+                </Grid>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="ClicktoSearch" />
+                </Border.GestureRecognizers>
+                <Border.Shadow>
+                    <Shadow Brush="Black"
+                            Opacity="0.3"
+                            Radius="10"
+                            Offset="5,5" />
+                </Border.Shadow>
+            </Border>
+            <Border Grid.Column="1"
+                    Padding="8"
+                    HeightRequest="48"
+                    StrokeThickness="0"
+                    WidthRequest="48"
+                    Background="White"
+                    BackgroundColor="White">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="11" />
+                </Border.StrokeShape>
+                <Border.Shadow>
+                    <Shadow Brush="Black"
+                            Opacity="0.3"
+                            Radius="10"
+                            Offset="5,5" />
+                </Border.Shadow>
+                <Image HeightRequest="15"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       WidthRequest="15">
+                    <Image.Source>
+                        <FontImageSource FontFamily="FaPro"
+                                         Glyph="{x:Static views:FaPro.Filter}"
+                                         Color="{DynamicResource Primary}" />
+                    </Image.Source>
+                </Image>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SearchLocationCommand}"
+                                           />
+                </Border.GestureRecognizers>
+            </Border>
+        </Grid>
+        <ScrollView Orientation="Horizontal"
+                    VerticalOptions="Start"
+                    ZIndex="1000"
+                    Margin="15,70,15,0"
+                    HorizontalScrollBarVisibility="Never">
+            <Grid ColumnDefinitions="*,*,*,*"
+                  ColumnSpacing="10">
+                <Border Margin="0"
+                        Padding="10,5"
+                        HeightRequest="40"
+                        Stroke="{DynamicResource Gray200}"
+                        StrokeThickness="1"
+                        Background="{AppThemeBinding Light={DynamicResource White},Dark=#666}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,auto">
+                        <Label FontSize="14"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Text="{Binding SelectedProvinceLabel}"
+                               TextColor="{AppThemeBinding Light={DynamicResource Black},Dark={DynamicResource White}}"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               FontFamily="MaterialDesign"
+                               FontSize="22"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Text="{x:Static views:MaterialDesignIcons.ArrowDropDown}"
+                               TextColor="{AppThemeBinding Light={DynamicResource Black},Dark={DynamicResource White}}"
+                               VerticalOptions="Center" />
+                    </Grid>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ProvinceOptionCommand}"/>
+                    </Border.GestureRecognizers>
+                    <!--<Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenFilterCommand}"
+                                                  CommandParameter="PropertyType" />
+                        </Border.GestureRecognizers>-->
+                </Border>
+                <Border Grid.Column="1"
+                        Margin="0"
+                        Padding="10,5"
+                        HeightRequest="40"
+                        Stroke="{DynamicResource Gray200}"
+                        StrokeThickness="1"
+                        Background="{AppThemeBinding Light={DynamicResource White},Dark=#666}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,auto">
+                        <Label FontSize="14"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Text="{Binding SelectedDistrictLabel}"
+                               TextColor="{AppThemeBinding Light={DynamicResource Black},Dark={DynamicResource White}}"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               FontFamily="MaterialDesign"
+                               FontSize="22"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Text="{x:Static views:MaterialDesignIcons.ArrowDropDown}"
+                               TextColor="{AppThemeBinding Light={DynamicResource Black},Dark={DynamicResource White}}"
+                               VerticalOptions="Center" />
+
+                    </Grid>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DistrictOptionCommand}" />
+                        </Border.GestureRecognizers>
+                    <!--<Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenFilterCommand}"
+                                                  CommandParameter="PriceRange" />
+                        </Border.GestureRecognizers>-->
+                </Border>
+                <Border Grid.Column="2"
+                        Margin="0"
+                        Padding="10,5"
+                        HeightRequest="40"
+                        Stroke="{DynamicResource Gray200}"
+                        StrokeThickness="1"
+                        Background="{AppThemeBinding Light={DynamicResource White},Dark=#666}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,auto">
+                        <Label FontSize="14"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Text="{Binding SelectedWardLabel}"
+                               TextColor="{AppThemeBinding Light={DynamicResource Black},Dark={DynamicResource White}}"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               FontFamily="MaterialDesign"
+                               FontSize="22"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Text="{x:Static views:MaterialDesignIcons.ArrowDropDown}"
+                               TextColor="{AppThemeBinding Light={DynamicResource Black},Dark={DynamicResource White}}"
+                               VerticalOptions="Center" />
+
+                    </Grid>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding WardOptionCommand}"/>
+                    </Border.GestureRecognizers>
+                    <!--<Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenFilterCommand}"
+                                                  CommandParameter="Area" />
+                        </Border.GestureRecognizers>-->
+                </Border>
+                <Border Grid.Column="3"
+                        Margin="0"
+                        Padding="10,5"
+                        HeightRequest="40"
+                        Stroke="{DynamicResource Gray200}"
+                        StrokeThickness="1"
+                        Background="{AppThemeBinding Light={DynamicResource White},Dark=#666}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10" />
+                    </Border.StrokeShape>
+                    <Grid ColumnDefinitions="*,auto">
+                        <Switch x:Name="NotifySwitch"
+                                IsToggled="False"
+                                Toggled="NotifySwitch_Toggled"
+                                OnColor="{DynamicResource Primary}"
+                                ThumbColor="{DynamicResource Primary}" />
+                        <Label FontSize="14"
+                               Grid.Column="1"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               Text="Phù hợp đầu tư"
+                               TextColor="{AppThemeBinding Light={DynamicResource Black},Dark={DynamicResource White}}"
+                               VerticalOptions="Center" />
+                    </Grid>
+                  
+                    <!--<Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenFilterCommand}"
+                                                  CommandParameter="Area" />
+                        </Border.GestureRecognizers>-->                  
+                </Border>
+            </Grid>
+        </ScrollView>
+        <Border VerticalOptions="End"
+                HorizontalOptions="Center"
+                ZIndex="1000"
+                Margin="0,0,0,15"
+                Background="Black"
+                Padding="20,10"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 50">
+            <HorizontalStackLayout Spacing="5">
+                <Label FontFamily="MaterialDesign"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       Text="{x:Static views:MaterialDesignIcons.Map}"
+                       TextColor="White"
+                       VerticalOptions="Center" />
+                <Label Text="Danh sách"
+                       FontSize="14"
+                       TextColor="White" />
+            </HorizontalStackLayout>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="MainList" />
+            </Border.GestureRecognizers>
+        </Border>
+
+        
+            
+
+        <!-- Ghim về vị trí của bạn -->
+        <Border 
+            VerticalOptions="End"
+            HorizontalOptions="Start"
+            Margin="30,20"
+            WidthRequest="50"
+            HeightRequest="50"
+            Background="White"
+            StrokeShape="RoundRectangle 25">
+
+            <Image
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                WidthRequest="22"
+                HeightRequest="22">
+
+                <Image.Source>
+                    <FontImageSource 
+                        FontFamily="FaPro"
+                        Glyph="{x:Static views:FaPro.Location}"
+                        Size="22"
+                        Color="{DynamicResource Primary}" />
+                </Image.Source>
+            </Image>
+
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnLocateMeClicked"/>
+            </Border.GestureRecognizers>
+
+        </Border>
+    </Grid>
+</ContentPage>
