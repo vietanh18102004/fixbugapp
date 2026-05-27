@@ -202,6 +202,30 @@ private string BuildVideoHtml(string videoUrl)
     icPlay.style.display = 'block';
   }});
 
+  // Click video -> fullscreen + bật tiếng
+v.addEventListener('click', function(e) {
+
+  if (
+    e.target.closest('.icon-btn') ||
+    e.target.closest('.small-btn') ||
+    e.target === progress
+  ) {
+    return;
+  }
+
+  isMuted = false;
+  v.muted = false;
+
+  icMuteOff.style.display = 'none';
+  icMuteOn.style.display  = 'block';
+
+  if (!isFullscreen) {
+    toggleFullscreen();
+  }
+
+  resetHideTimer();
+});
+
   // iOS: lắng nghe volumechange để sync icon mute
   v.addEventListener('volumechange', function() {{
     isMuted = v.muted;
