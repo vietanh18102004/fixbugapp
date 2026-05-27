@@ -1,3 +1,4 @@
+#region Build HTML cho video với autoplay, loop, và click để pause/play(webview)
 private string BuildVideoHtml(string videoUrl)
 {
     return $@"<!DOCTYPE html>
@@ -22,12 +23,7 @@ private string BuildVideoHtml(string videoUrl)
     opacity:1;
     pointer-events:all;
   }}
-
-  #top {{
-    display:flex; justify-content:flex-end;
-    padding:10px 12px;
-  }}
-
+  #top {{ display:flex; justify-content:flex-end; padding:10px 12px; }}
   .icon-btn {{
     width:36px; height:36px; border-radius:50%;
     background:rgba(0,0,0,0.45);
@@ -36,32 +32,17 @@ private string BuildVideoHtml(string videoUrl)
     -webkit-tap-highlight-color:transparent;
   }}
   .icon-btn svg {{ display:block; pointer-events:none; }}
-
-  #middle {{
-    display:flex; justify-content:center; align-items:center; gap:40px;
-  }}
+  #middle {{ display:flex; justify-content:center; align-items:center; gap:40px; }}
   #playBtn {{ width:56px; height:56px; }}
-
-  #bottom {{
-    padding:0 12px 14px;
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-  }}
+  #bottom {{ padding:0 12px 14px; display:flex; flex-direction:column; gap:6px; }}
   #timeRow {{
     display:flex; justify-content:space-between;
-    font-size:11px; color:#fff;
-    font-family:sans-serif;
+    font-size:11px; color:#fff; font-family:sans-serif;
   }}
-  #seekRow {{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }}
+  #seekRow {{ display:flex; align-items:center; gap:10px; }}
   #progress {{
     -webkit-appearance:none; appearance:none;
-    flex:1;
-    height:3px; border-radius:2px;
+    flex:1; height:3px; border-radius:2px;
     background:#ffffff44; outline:none; cursor:pointer;
   }}
   #progress::-webkit-slider-thumb {{
@@ -83,17 +64,13 @@ private string BuildVideoHtml(string videoUrl)
 <video id='v' src='{videoUrl}' autoplay loop playsinline webkit-playsinline></video>
 
 <div id='controls'>
-  <!-- Top: placeholder -->
   <div id='top'></div>
-
-  <!-- Middle: seek back, play/pause, seek forward -->
   <div id='middle'>
     <button class='icon-btn' ontouchend='seekBy(-10)' onclick='seekBy(-10)'>
       <svg width='20' height='20' viewBox='0 0 24 24' fill='#fff'>
         <polygon points='12,4 2,12 12,20'/><polygon points='22,4 12,12 22,20'/>
       </svg>
     </button>
-
     <button class='icon-btn' id='playBtn' ontouchend='handlePlay()' onclick='handlePlay()'>
       <svg id='icPause' width='26' height='26' viewBox='0 0 24 24' fill='#fff'>
         <rect x='6' y='4' width='4' height='16'/><rect x='14' y='4' width='4' height='16'/>
@@ -102,22 +79,18 @@ private string BuildVideoHtml(string videoUrl)
         <polygon points='5 3 19 12 5 21 5 3'/>
       </svg>
     </button>
-
     <button class='icon-btn' ontouchend='seekBy(10)' onclick='seekBy(10)'>
       <svg width='20' height='20' viewBox='0 0 24 24' fill='#fff'>
         <polygon points='2,4 12,12 2,20'/><polygon points='12,4 22,12 12,20'/>
       </svg>
     </button>
   </div>
-
-  <!-- Bottom: time + [mute] [progress] [fullscreen] -->
   <div id='bottom'>
     <div id='timeRow'>
       <span id='curTime'>0:00</span>
       <span id='durTime'>0:00</span>
     </div>
     <div id='seekRow'>
-      <!-- Mute button -->
       <button class='small-btn' id='muteBtn' ontouchend='handleMute()' onclick='handleMute()'>
         <svg id='icMuteOff' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
           <polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'/>
@@ -129,12 +102,8 @@ private string BuildVideoHtml(string videoUrl)
           <path d='M15.54 8.46a5 5 0 0 1 0 7.07'/>
         </svg>
       </button>
-
-      <!-- Progress bar -->
       <input type='range' id='progress' min='0' max='100' value='0'
              oninput='onSeekInput()' onchange='onSeekChange()' />
-
-      <!-- Fullscreen / exit button -->
       <button class='small-btn' id='fsBtn' ontouchend='handleFs()' onclick='handleFs()'>
         <svg id='icFsIn' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
           <polyline points='15 3 21 3 21 9'/><polyline points='9 21 3 21 3 15'/>
@@ -166,8 +135,8 @@ private string BuildVideoHtml(string videoUrl)
   var isSeeking = false;
   var isFullscreen = false;
   var hideTimer = null;
+  var lastTouchTime = 0;
 
-  // iOS fix: dùng attribute thay vì property để set muted lần đầu
   v.setAttribute('muted', '');
   v.muted = true;
 
@@ -178,6 +147,7 @@ private string BuildVideoHtml(string videoUrl)
     return m + ':' + (sec < 10 ? '0' : '') + sec;
   }}
 
+  // Cập nhật progress bar
   v.addEventListener('timeupdate', function() {{
     if (!isSeeking && v.duration) {{
       var pct = (v.currentTime / v.duration) * 100;
@@ -189,52 +159,68 @@ private string BuildVideoHtml(string videoUrl)
     }}
   }});
 
-  v.addEventListener('ended', function() {{
-    v.currentTime = 0; v.play();
-  }});
+  v.addEventListener('ended', function() {{ v.currentTime = 0; v.play(); }});
 
   v.addEventListener('play', function() {{
-    icPause.style.display = 'block';
-    icPlay.style.display = 'none';
+    icPause.style.display = 'block'; icPlay.style.display = 'none';
   }});
   v.addEventListener('pause', function() {{
-    icPause.style.display = 'none';
-    icPlay.style.display = 'block';
+    icPause.style.display = 'none'; icPlay.style.display = 'block';
   }});
 
-  // Click video -> fullscreen + bật tiếng
-v.addEventListener('click', function(e) {
-
-  if (
-    e.target.closest('.icon-btn') ||
-    e.target.closest('.small-btn') ||
-    e.target === progress
-  ) {
-    return;
-  }
-
-  isMuted = false;
-  v.muted = false;
-
-  icMuteOff.style.display = 'none';
-  icMuteOn.style.display  = 'block';
-
-  if (!isFullscreen) {
-    toggleFullscreen();
-  }
-
-  resetHideTimer();
-});
-
-  // iOS: lắng nghe volumechange để sync icon mute
+  // Sync icon mute theo trạng thái thực của video
   v.addEventListener('volumechange', function() {{
     isMuted = v.muted;
     icMuteOff.style.display = isMuted ? 'block' : 'none';
     icMuteOn.style.display  = isMuted ? 'none'  : 'block';
   }});
 
-  // Chống double-fire trên iOS (ontouchend + onclick cùng lúc)
-  var lastTouchTime = 0;
+  // iOS native fullscreen: vào
+  v.addEventListener('webkitbeginfullscreen', function() {{
+    isFullscreen = true;
+    icFsIn.style.display = 'none';
+    icFsOut.style.display = 'block';
+    // Bật native controls để volume iOS hoạt động trong fullscreen
+    v.setAttribute('controls', '');
+    showControls();
+  }});
+
+  // iOS native fullscreen: ra
+  v.addEventListener('webkitendfullscreen', function() {{
+    isFullscreen = false;
+    icFsIn.style.display = 'block';
+    icFsOut.style.display = 'none';
+    v.removeAttribute('controls');
+    // Tắt tiếng khi ra fullscreen
+    isMuted = true;
+    v.muted = true;
+    hideControls();
+    window.location.href = 'videostatus://exitfullscreen';
+  }});
+
+  // Android/desktop fullscreen events
+  document.addEventListener('fullscreenchange', function() {{
+    if (!document.fullscreenElement) {{
+      isFullscreen = false;
+      icFsIn.style.display = 'block';
+      icFsOut.style.display = 'none';
+      isMuted = true;
+      v.muted = true;
+      hideControls();
+    }}
+  }});
+  document.addEventListener('webkitfullscreenchange', function() {{
+    if (!document.webkitFullscreenElement) {{
+      isFullscreen = false;
+      icFsIn.style.display = 'block';
+      icFsOut.style.display = 'none';
+      isMuted = true;
+      v.muted = true;
+      hideControls();
+    }}
+  }});
+
+  // Debounce chống double-fire iOS
   function debounce(fn) {{
     var now = Date.now();
     if (now - lastTouchTime < 300) return;
@@ -255,13 +241,10 @@ v.addEventListener('click', function(e) {
   function toggleMute() {{
     isMuted = !isMuted;
     v.muted = isMuted;
-    // iOS fallback: nếu muted không thay đổi sau 50ms thì reload source
     setTimeout(function() {{
       if (v.muted !== isMuted) {{
         var t = v.currentTime;
-        v.load();
-        v.currentTime = t;
-        v.muted = isMuted;
+        v.load(); v.currentTime = t; v.muted = isMuted;
         if (!v.paused) v.play();
       }}
     }}, 50);
@@ -269,38 +252,20 @@ v.addEventListener('click', function(e) {
   }}
 
   function toggleFullscreen() {{
+    // Unmute TRONG gesture handler — iOS yêu cầu
+    isMuted = false;
+    v.muted = false;
+
     if (!isFullscreen) {{
-      isFullscreen = true;
-      icFsIn.style.display = 'none';
-      icFsOut.style.display = 'block';
-      if (v.requestFullscreen) v.requestFullscreen();
+      if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+      else if (v.requestFullscreen) v.requestFullscreen();
       else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
-      else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
     }} else {{
-      isFullscreen = false;
-      icFsIn.style.display = 'block';
-      icFsOut.style.display = 'none';
       if (document.exitFullscreen) document.exitFullscreen();
       else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-      window.location.href = 'videostatus://exitfullscreen';
     }}
     resetHideTimer();
   }}
-
-  document.addEventListener('fullscreenchange', function() {{
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {{
-      isFullscreen = false;
-      icFsIn.style.display = 'block';
-      icFsOut.style.display = 'none';
-    }}
-  }});
-  document.addEventListener('webkitfullscreenchange', function() {{
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {{
-      isFullscreen = false;
-      icFsIn.style.display = 'block';
-      icFsOut.style.display = 'none';
-    }}
-  }});
 
   function seekBy(sec) {{
     v.currentTime = Math.max(0, Math.min(v.duration || 0, v.currentTime + sec));
@@ -324,6 +289,11 @@ v.addEventListener('click', function(e) {
     resetHideTimer();
   }}
 
+  function hideControls() {{
+    controls.classList.remove('visible');
+    clearTimeout(hideTimer);
+  }}
+
   function resetHideTimer() {{
     clearTimeout(hideTimer);
     hideTimer = setTimeout(function() {{
@@ -331,13 +301,32 @@ v.addEventListener('click', function(e) {
     }}, 5000);
   }}
 
-  document.addEventListener('touchstart', function(e) {{
-    if (!e.target.closest('.icon-btn') && !e.target.closest('.small-btn') && e.target !== progress) {{
-      showControls();
-    }}
+  // Chạm vào vùng video -> fullscreen + unmute + hiện controls
+  document.addEventListener('touchend', function(e) {{
+    if (e.target.closest('.icon-btn') || e.target.closest('.small-btn') || e.target === progress) return;
+    debounce(function() {{
+      if (!isFullscreen) {{
+        // Unmute TRONG gesture handler — iOS yêu cầu
+        isMuted = false;
+        v.muted = false;
+        if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+        else if (v.requestFullscreen) v.requestFullscreen();
+        else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
+      }} else {{
+        showControls();
+      }}
+    }});
   }});
+
+  // Click (Android/desktop)
   document.addEventListener('click', function(e) {{
-    if (!e.target.closest('.icon-btn') && !e.target.closest('.small-btn') && e.target !== progress) {{
+    if (e.target.closest('.icon-btn') || e.target.closest('.small-btn') || e.target === progress) return;
+    if (!isFullscreen) {{
+      isMuted = false;
+      v.muted = false;
+      if (v.requestFullscreen) v.requestFullscreen();
+      else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
+    }} else {{
       showControls();
     }}
   }});
@@ -345,3 +334,4 @@ v.addEventListener('click', function(e) {
 </body>
 </html>";
 }
+#endregion
